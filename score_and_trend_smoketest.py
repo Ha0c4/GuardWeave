@@ -22,7 +22,7 @@ import argparse
 from typing import List
 
 # Import your defense module (must be in the same directory).
-from policy_risk_defense_gemini_clean import (
+from policy_risk_defense import (
     Policy,
     DefenderConfig,
     PolicyRiskDefender,
