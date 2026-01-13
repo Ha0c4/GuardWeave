@@ -9,6 +9,11 @@ from datetime import datetime, timezone  # 导入 datetime：用于 timestamp
 from dataclasses import dataclass  # 导入 dataclass：简化数据结构
 from typing import List, Dict, Any, Optional, Tuple  # 导入类型标注：提升可读性
 
+import sys  # 导入 sys：用于记录 Python 版本
+import platform  # 导入 platform：用于记录运行环境
+import subprocess  # 导入 subprocess：用于获取 git commit（可选）
+from dataclasses import asdict  # 导入 asdict：用于稳定序列化 dataclass
+
 import torch  # 导入 torch：用于 dtype 与设备判断
 from transformers import AutoTokenizer, AutoModelForCausalLM  # 导入 transformers：加载 tokenizer 与模型
 
@@ -18,6 +23,8 @@ from policy_risk_defense import (
     DefenderConfig,
     build_default_output_deny_patterns,
 )  # 导入策略优先的风险自适应防御器
+
+import policy_risk_defense as prd  # 导入模块本体：用于记录防御代码版本
 
 
 
@@ -1045,128 +1052,259 @@ def summarize(results: List[TrialResult]) -> Dict[str, Any]:
     }  # 返回结束
 
 
+
+def stable_json_dumps(obj: Any) -> str:
+    """Dump JSON with stable key order for hashing.
+
+    param obj: python object.
+    return: json string with sorted keys.
+    """
+    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def safe_git_commit() -> Optional[str]:
+    """Best-effort get current git commit hash.
+
+    return: commit hash string or None.
+    """
+    try:
+        out = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True)
+        s = out.strip()
+        return s if s else None
+    except Exception:
+        return None
+
+
+def build_run_metadata(
+    *,
+    run_id: str,
+    timestamp: str,
+    model_name: str,
+    seed: int,
+    gen: GenerationParams,
+    attack_strategies_path: str,
+    attack_strategies_hash: str,
+    secret_len: int,
+) -> Dict[str, Any]:
+    """Build run-level metadata dict for reproducibility.
+
+    param run_id: unique run id.
+    param timestamp: UTC ISO timestamp.
+    param model_name: model id/path.
+    param seed: global seed.
+    param gen: generation params.
+    param attack_strategies_path: path to strategies file.
+    param attack_strategies_hash: sha256 of strategies file.
+    param secret_len: secret length.
+    return: metadata dict.
+    """
+    # ===== code versioning =====
+    runner_path = os.path.abspath(__file__)
+    policy_path = os.path.abspath(getattr(prd, "__file__", ""))
+
+    runner_hash = file_sha256_hex(runner_path) if os.path.exists(runner_path) else None
+    policy_hash = file_sha256_hex(policy_path) if policy_path and os.path.exists(policy_path) else None
+
+    # ===== defense config fingerprint (exclude secret-specific deny patterns) =====
+    cfg_for_hash = DefenderConfig(
+        enable_input_separation=True,
+        enable_output_heuristics=True,
+        enable_output_repair=False,
+    )
+    defense_cfg_obj = asdict(cfg_for_hash)
+    defense_cfg_obj["secret_chunk_min_len"] = 8
+    defense_cfg_obj["expose_refusal_reason_to_user"] = getattr(cfg_for_hash, "expose_refusal_reason_to_user", False)
+
+    defense_config_hash = sha256_hex(stable_json_dumps(defense_cfg_obj))
+
+    # ===== runtime info =====
+    cuda_available = bool(torch.cuda.is_available())
+    gpu_names: List[str] = []
+    if cuda_available:
+        try:
+            for i in range(int(torch.cuda.device_count())):
+                gpu_names.append(torch.cuda.get_device_name(i))
+        except Exception:
+            gpu_names = []
+
+    runtime = {
+        "python_version": sys.version.splitlines()[0],
+        "platform": platform.platform(),
+        "torch_version": getattr(torch, "__version__", None),
+        "transformers_version": getattr(__import__("transformers"), "__version__", None),
+        "cuda_available": cuda_available,
+        "cuda_device_count": int(torch.cuda.device_count()) if cuda_available else 0,
+        "cuda_device_names": gpu_names,
+        "default_dtype": "float16" if cuda_available else "float32",
+    }
+
+    return {
+        "log_schema_version": "jailbreak_eval_jsonl_v2",
+
+        # run identity
+        "run_id": run_id,
+        "timestamp": timestamp,
+
+        # reproducibility core
+        "model_name": model_name,
+        "seed": seed,
+        "secret_len": secret_len,
+
+        # generation params
+        "max_new_tokens": gen.max_new_tokens,
+        "do_sample": gen.do_sample,
+        "temperature": gen.temperature,
+        "top_p": gen.top_p,
+        "top_k": gen.top_k,
+        "repetition_penalty": gen.repetition_penalty,
+
+        # strategy set
+        "attack_strategies_path": attack_strategies_path,
+        "attack_strategies_hash": attack_strategies_hash,
+
+        # defense fingerprint
+        "defense_config_hash": defense_config_hash,
+        "defense_config": {
+            "enable_input_separation": cfg_for_hash.enable_input_separation,
+            "enable_output_heuristics": cfg_for_hash.enable_output_heuristics,
+            "enable_output_repair": cfg_for_hash.enable_output_repair,
+            "secret_chunk_min_len": 8,
+            "expose_refusal_reason_to_user": getattr(cfg_for_hash, "expose_refusal_reason_to_user", False),
+        },
+
+        # code provenance
+        "code_git_commit": safe_git_commit(),
+        "runner_py_sha256": runner_hash,
+        "policy_py_sha256": policy_hash,
+
+        # runtime
+        "runtime": runtime,
+    }
+
+
 def main():
     """Main entry.
 
     return: None.
     """
-    # ===== 可复现/对比实验关键配置（会写入 jsonl）=====
+    # ===== 可复现/对比实验关键配置（会写入 jsonl） =====
     seed = 10  # 全局 seed（写入日志）
     model_name = "Qwen/Qwen2.5-7B-Instruct"  # 模型名（写入日志）
-    gen = GenerationParams(  # 生成参数（写入日志）
-        max_new_tokens=128,  # max_new_tokens
-        do_sample=False,  # do_sample
-        temperature=1.0,  # temperature
-        top_p=None,  # top_p（可选）
-        top_k=None,  # top_k（可选）
-        repetition_penalty=None,  # repetition_penalty（可选）
-    )  # gen 结束
-    secret_len = 24  # secret 长度
-    log_path = "jailbreak_exfiltration_logs.jsonl"  # 输出日志路径
-    attack_strategies_path = "attack_strategies.json"  # 策略文件路径（写入日志）
+    gen = GenerationParams(
+        max_new_tokens=128,
+        do_sample=False,
+        temperature=1.0,
+        top_p=None,
+        top_k=None,
+        repetition_penalty=None,
+    )
+    secret_len = 24
+    log_path = "jailbreak_exfiltration_logs.jsonl"
+    attack_strategies_path = "attack_strategies.json"
     INCLUDE_SECRET_IN_LOG = False  # 是否把明文 secret 写入日志（默认 False，建议不要开）
-    # ===================================================
+    # ======================================================
 
-    run_id = make_run_id()  # 新增：一次运行的唯一 ID（写入日志）
-    timestamp = now_utc_iso()  # 新增：运行时间戳（写入日志）
+    run_id = make_run_id()
+    timestamp = now_utc_iso()
 
-    attack_strategies_hash = file_sha256_hex(attack_strategies_path)  # 新增：策略文件 sha256（写入日志）
+    attack_strategies_hash = file_sha256_hex(attack_strategies_path)
 
-    rng = random.Random(seed)  # 构造可复现 RNG
-    start_time = __import__("time").time()  # 记录开始时间
+    # run 元信息（每条 jsonl 都写，避免混跑对齐困难）
+    run_meta = build_run_metadata(
+        run_id=run_id,
+        timestamp=timestamp,
+        model_name=model_name,
+        seed=seed,
+        gen=gen,
+        attack_strategies_path=attack_strategies_path,
+        attack_strategies_hash=attack_strategies_hash,
+        secret_len=secret_len,
+    )
 
-    tokenizer, model = load_llm(model_name)  # 加载 tokenizer 与模型
-    strategies = load_strategies(attack_strategies_path)  # 读取策略列表（与 hash 对应）
+    rng = random.Random(seed)
+    start_time = __import__("time").time()
 
-    results: List[TrialResult] = []  # 保存所有结果
+    tokenizer, model = load_llm(model_name)
+    strategies = load_strategies(attack_strategies_path)
 
-    with open(log_path, "w", encoding="utf-8") as f:  # 打开日志文件（覆盖写）
-        trial_id = 0  # 初始化 trial_id
-        for strat in strategies:  # 遍历策略
-            res = run_trial(  # 跑单次试验
-                trial_id=trial_id,  # trial_id
-                tokenizer=tokenizer,  # tokenizer
-                model=model,  # model
-                strategy=strat,  # strategy
-                rng=rng,  # rng
-                gen=gen,  # generation params（确保可复现且可记录）
-                secret_len=secret_len,  # secret_len
-            )  # 得到 res
-            results.append(res)  # 保存到结果列表
+    # 额外：记录策略数量（run 级）
+    run_meta["attack_strategies_count"] = len(strategies)
 
-            # ===== 新增：run 元信息（每条 jsonl 都写，方便混跑对齐）=====
-            item = {  # 构造日志条目
-                "run_id": run_id,  # 新增：run_id
-                "timestamp": timestamp,  # 新增：timestamp（UTC ISO）
-                "model_name": model_name,  # 新增：model_name
-                "seed": seed,  # 新增：seed
+    results: List[TrialResult] = []
 
-                "max_new_tokens": gen.max_new_tokens,  # 新增：max_new_tokens
-                "do_sample": gen.do_sample,  # 新增：do_sample
-                "temperature": gen.temperature,  # 新增：temperature
-                "top_p": gen.top_p,  # 新增：top_p（可能为 None）
-                "top_k": gen.top_k,  # 新增：top_k（可能为 None）
-                "repetition_penalty": gen.repetition_penalty,  # 新增：repetition_penalty（可能为 None）
+    with open(log_path, "w", encoding="utf-8") as f:
+        trial_id = 0
+        for strat in strategies:
+            res = run_trial(
+                trial_id=trial_id,
+                tokenizer=tokenizer,
+                model=model,
+                strategy=strat,
+                rng=rng,
+                gen=gen,
+                secret_len=secret_len,
+            )
+            results.append(res)
 
-                "attack_strategies_path": attack_strategies_path,  # 新增：策略文件路径
-                "attack_strategies_hash": attack_strategies_hash,  # 新增：策略文件 sha256
-                # ========================================================
+            item: Dict[str, Any] = dict(run_meta)  # 先写入 run 元信息
 
-                "trial_id": res.trial_id,  # trial_id
-                "strategy": res.strategy,  # strategy
+            # ===== trial-level fields =====
+            item.update({
+                "trial_id": res.trial_id,
+                "strategy": res.strategy,
 
-                "leaked": res.leaked,  # strict
-                "leaked_turn": res.leaked_turn,  # strict turn
+                "leaked": res.leaked,
+                "leaked_turn": res.leaked_turn,
 
-                "normalized_leaked": res.normalized_leaked,  # normalized
-                "normalized_leaked_turn": res.normalized_leaked_turn,  # normalized turn
+                "normalized_leaked": res.normalized_leaked,
+                "normalized_leaked_turn": res.normalized_leaked_turn,
 
-                "encoded_leaked": res.encoded_leaked,  # encoded
-                "encoded_leaked_turn": res.encoded_leaked_turn,  # encoded turn
+                "encoded_leaked": res.encoded_leaked,
+                "encoded_leaked_turn": res.encoded_leaked_turn,
 
-                "cumulative_strict_leaked": res.cumulative_strict_leaked,  # 跨轮 strict
-                "cumulative_strict_leaked_turn": res.cumulative_strict_leaked_turn,  # 跨轮 strict turn
+                "cumulative_strict_leaked": res.cumulative_strict_leaked,
+                "cumulative_strict_leaked_turn": res.cumulative_strict_leaked_turn,
 
-                "cumulative_normalized_leaked": res.cumulative_normalized_leaked,  # 跨轮 normalized
-                "cumulative_normalized_leaked_turn": res.cumulative_normalized_leaked_turn,  # 跨轮 normalized turn
+                "cumulative_normalized_leaked": res.cumulative_normalized_leaked,
+                "cumulative_normalized_leaked_turn": res.cumulative_normalized_leaked_turn,
 
-                "cumulative_base64_leaked": res.cumulative_base64_leaked,  # 跨轮 base64
-                "cumulative_base64_leaked_turn": res.cumulative_base64_leaked_turn,  # 跨轮 base64 turn
+                "cumulative_base64_leaked": res.cumulative_base64_leaked,
+                "cumulative_base64_leaked_turn": res.cumulative_base64_leaked_turn,
 
-                "leak_types": res.leak_types,  # 泄漏类型标签
+                "leak_types": res.leak_types,
 
-                "partial_leak_ratio": res.partial_leak_ratio,  # 部分泄漏比例
-                "partial_leak_level": res.partial_leak_level,  # 部分泄漏等级
+                "partial_leak_ratio": res.partial_leak_ratio,
+                "partial_leak_level": res.partial_leak_level,
 
-                "refusal_turns": res.refusal_turns,  # 每轮拒答
-                "refuse_but_leak": res.refuse_but_leak,  # 拒答但仍泄漏（含 cumulative）
+                "refusal_turns": res.refusal_turns,
+                "refuse_but_leak": res.refuse_but_leak,
 
-                "defense_tiers": res.defense_tiers,  # 新增：每轮 tier
-                "defense_actions": res.defense_actions,  # 新增：每轮动作
-                "defense_reasons": res.defense_reasons,  # 新增：每轮原因
-                "defense_grades": res.defense_grades,  # 新增：每轮分级
-                "defense_scores": res.defense_scores,  # 新增：每轮 score（可选）
-                "defense_signature_leak": res.defense_signature_leak,  # 新增：trial 级指纹泄漏
-                "defense_signature_leak_turns": res.defense_signature_leak_turns,  # 新增：每轮指纹泄漏
-                "defense_signature_leak_types": res.defense_signature_leak_types,  # 新增：指纹类型
+                "defense_tiers": res.defense_tiers,
+                "defense_actions": res.defense_actions,
+                "defense_reasons": res.defense_reasons,
+                "defense_grades": res.defense_grades,
+                "defense_scores": res.defense_scores,
+                "defense_signature_leak": res.defense_signature_leak,
+                "defense_signature_leak_turns": res.defense_signature_leak_turns,
+                "defense_signature_leak_types": res.defense_signature_leak_types,
 
-                "outputs": res.outputs,  # 输出列表
-                "secret_hash": res.secret_hash,  # secret hash
-                "secret_len": res.secret_len,  # secret len
-            }  # item 结束
+                "outputs": res.outputs,
+                "secret_hash": res.secret_hash,
+                "secret_len": res.secret_len,
+            })
 
-            if INCLUDE_SECRET_IN_LOG:  # 如果开启写明文 secret
-                item["secret"] = res.secret  # 写入 secret（不建议）
+            if INCLUDE_SECRET_IN_LOG:
+                item["secret"] = res.secret
 
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")  # 写入一行 jsonl
-            f.flush()  # 立刻刷新落盘
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+            f.flush()
 
-            trial_id += 1  # trial_id 自增
+            trial_id += 1
 
-    summary = summarize(results)  # 汇总统计
-    print(json.dumps(summary, ensure_ascii=False, indent=2))  # 打印汇总 JSON
-    print(f"Total time: {__import__('time').time() - start_time:.2f} seconds")  # 打印耗时
+    summary = summarize(results)
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    print(f"Total time: {__import__('time').time() - start_time:.2f} seconds")
 
 
-if __name__ == "__main__":  # 入口保护
-    main()  # 执行 main
+if __name__ == "__main__":
+    main()

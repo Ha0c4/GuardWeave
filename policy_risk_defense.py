@@ -916,6 +916,8 @@ class DefenderConfig:
     enable_output_heuristics: bool = True  # 启用输出启发式，默认True
     enable_output_repair: bool = False  # 启用输出修复，默认False，TODO：在管道中实现多轮修复
 
+    expose_refusal_reason_to_user: bool = False  # 是否在用户可见拒绝文案中暴露内部原因（默认False，避免泄露deny_pattern等指纹）
+
 
 # =========================
 # 特征提取
@@ -1438,20 +1440,59 @@ class PolicyRiskDefender:
 
         return False, ""  # 返回不违规
 
+
+    def _sanitize_reason_for_user(self, reason: str) -> str:
+        """将内部 reason 归一化为对用户安全的理由，避免暴露 deny_pattern / regex / 内部判定细节。
+
+        参数:
+            reason (str): 内部违规原因或调试标签。
+
+        返回:
+            str: 适合展示给用户的抽象理由（可能为空）。
+        """
+        if not reason:
+            return ""
+
+        r = str(reason).strip()
+
+        # 任何包含 deny_pattern 或明显正则元字符/内部判定前缀的理由，都不应对外暴露
+        lowered = r.lower()
+        if lowered.startswith("deny_pattern:"):
+            return "policy_violation"
+        if lowered.startswith("judge:"):
+            return "policy_violation"
+        if "regex" in lowered:
+            return "policy_violation"
+        if any(tok in r for tok in ["(?i)", "\b", "|", "(?:", "[", "]", "{", "}"]):
+            return "policy_violation"
+
+        # 默认：不对外展示细节（保持最小信息）
+        return "policy_violation"
+
     def _refusal_text(self, reason: str) -> str:
         """为违反策略的请求创建安全的拒绝消息。
-        
+
+        注意：默认不在用户可见输出中包含内部 reason，避免泄露 deny_pattern/regex 等防御指纹。
+
         参数:
             reason (str): 违规原因或调试标签。
-        
+
         返回:
-            str: 函数返回值。
+            str: 用户可见的拒绝文本。
         """
-        return (
+        base = (
             "I can't help with that request because it conflicts with the safety policy. "
             "If you describe your goal in a safe way, I can try to help with an alternative approach."
-            f" (reason: {reason})"  # 原因
         )
+
+        if not getattr(self.cfg, "expose_refusal_reason_to_user", False):
+            return base
+
+        safe_reason = self._sanitize_reason_for_user(reason)
+        if not safe_reason:
+            return base
+        return base + f" (reason: {safe_reason})"
+
 
     def _lock(self, *, min_tier: int, rounds: int) -> None:
         """锁定最小等级若干轮（严格性锁定）。
