@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
 [![CI](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml/badge.svg)](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Ha0c4/GuardWeave)](https://github.com/Ha0c4/GuardWeave/releases)
+[![PyPI](https://img.shields.io/pypi/v/guardweave)](https://pypi.org/project/guardweave/)
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
@@ -54,17 +55,24 @@
 
 ## 快速开始 🚀
 
-本地安装：
+从 PyPI 安装：
 
 ```bash
-cd GuardWeave
-pip install -e .
+pip install guardweave
 ```
 
-如果你要训练本地分类 judge，再额外安装训练依赖：
+如果你要从 PyPI 安装训练依赖：
 
 ```bash
-pip install -e .[train]
+pip install 'guardweave[train]'
+```
+
+如果你是在本地开发，使用源码安装：
+
+```bash
+git clone https://github.com/Ha0c4/GuardWeave.git
+cd GuardWeave
+pip install -e .
 ```
 
 如果你计划调用托管或本地 OpenAI-compatible 后端，可以先复制环境变量模板：
@@ -143,16 +151,16 @@ guardweave inspect \
 
 ## 安装方式
 
-### 方式 1：开发态可编辑安装
+### 方式 1：从 PyPI 安装
+
+```bash
+pip install guardweave
+```
+
+### 方式 2：开发态可编辑安装
 
 ```bash
 pip install -e .
-```
-
-### 方式 2：普通本地安装
-
-```bash
-pip install .
 ```
 
 ### 可选开发工具
@@ -166,7 +174,7 @@ pip install -e .[dev]
 如果你要训练或评测本地分类 judge：
 
 ```bash
-pip install -e .[train]
+pip install 'guardweave[train]'
 ```
 
 ## 仓库结构

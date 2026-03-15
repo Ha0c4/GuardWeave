@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
 [![CI](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml/badge.svg)](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Ha0c4/GuardWeave)](https://github.com/Ha0c4/GuardWeave/releases)
+[![PyPI](https://img.shields.io/pypi/v/guardweave)](https://pypi.org/project/guardweave/)
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
@@ -54,17 +55,24 @@ Why this is lightweight ⚙️:
 
 ## Quick Start 🚀
 
-Install locally:
+Install from PyPI:
 
 ```bash
-cd GuardWeave
-pip install -e .
+pip install guardweave
 ```
 
-If you want to train local classifier judges:
+If you want to train local classifier judges from PyPI:
 
 ```bash
-pip install -e .[train]
+pip install 'guardweave[train]'
+```
+
+Install from source for local development:
+
+```bash
+git clone https://github.com/Ha0c4/GuardWeave.git
+cd GuardWeave
+pip install -e .
 ```
 
 Copy the env template if you plan to call a hosted or local OpenAI-compatible backend:
@@ -143,16 +151,16 @@ guardweave inspect \
 
 ## Installation
 
-### Option 1: Editable install for development
+### Option 1: Install from PyPI
+
+```bash
+pip install guardweave
+```
+
+### Option 2: Editable install for development
 
 ```bash
 pip install -e .
-```
-
-### Option 2: Regular local install
-
-```bash
-pip install .
 ```
 
 ### Optional dev tools
@@ -166,7 +174,7 @@ pip install -e .[dev]
 Use this if you want to train or evaluate local classifier judges:
 
 ```bash
-pip install -e .[train]
+pip install 'guardweave[train]'
 ```
 
 ## Repository Layout
