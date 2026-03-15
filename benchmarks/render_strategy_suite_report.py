@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import shutil
 import statistics
 import subprocess
 from html import escape
@@ -214,6 +216,30 @@ def render_report(suite_dir: Path, title: str) -> str:
     return html
 
 
+def find_chrome_binary() -> str:
+    for env_name in ("CHROME_BIN", "CHROMIUM_BIN", "BROWSER_BIN"):
+        candidate = os.environ.get(env_name, "").strip()
+        if candidate:
+            return candidate
+
+    for name in ("google-chrome", "chromium", "chromium-browser", "chrome", "google-chrome-stable"):
+        candidate = shutil.which(name)
+        if candidate:
+            return candidate
+
+    for candidate in (
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    ):
+        if Path(candidate).exists():
+            return candidate
+
+    raise SystemExit(
+        "A Chrome-compatible browser is required to render the PDF report. "
+        "Set CHROME_BIN or install google-chrome/chromium."
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite-dir", required=True)
@@ -229,12 +255,8 @@ def main() -> int:
     html = render_report(suite_dir, args.title)
     html_out.write_text(html, encoding="utf-8")
 
-    chrome_bin = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
-    if not chrome_bin.exists():
-        raise SystemExit("Google Chrome is required to render the PDF report.")
-
     cmd = [
-        str(chrome_bin),
+        find_chrome_binary(),
         "--headless=new",
         "--disable-gpu",
         "--no-pdf-header-footer",
