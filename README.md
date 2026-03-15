@@ -28,6 +28,10 @@ Project links:
 - [Security policy](SECURITY.md)
 - [Launch post drafts](docs/LAUNCH_POSTS.md)
 
+## Architecture
+
+![GuardWeave architecture](docs/assets/architecture-diagram.svg)
+
 ## Deployment Trade-Offs 📊
 
 The homepage table below is organized around the deployment question first: what do you gain, what does it cost, and which setup should you reach for?

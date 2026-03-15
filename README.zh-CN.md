@@ -28,6 +28,10 @@
 - [安全策略](SECURITY.md)
 - [发布文案草稿](docs/LAUNCH_POSTS.zh-CN.md)
 
+## 架构图
+
+![GuardWeave 架构图](docs/assets/architecture-diagram.svg)
+
 ## 部署取舍总表 📊
 
 首页先回答部署者最关心的问题：有没有用、代价多大、什么时候该上 judge。
