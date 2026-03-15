@@ -1,0 +1,15 @@
+task: risk
+train_file: examples/judge_training/risk_train.jsonl
+eval_file: examples/judge_training/risk_eval.jsonl
+output_dir: artifacts/risk_judge
+base_model: prajjwal1/bert-tiny
+label_names:
+  - safe
+  - unsafe
+positive_label: unsafe
+threshold: 0.5
+num_train_epochs: 6
+learning_rate: 0.0002
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 8
+finetune_method: full

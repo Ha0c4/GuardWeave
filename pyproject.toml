@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guardweave"
+version = "0.1.0"
+description = "GuardWeave: risk-adaptive prompt injection defense for hosted APIs and local LLMs."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["llm", "prompt-injection", "security", "guardrails", "rag"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+train = [
+  "accelerate>=0.28",
+  "datasets>=2.18",
+  "numpy>=1.24",
+  "peft>=0.10",
+  "pyyaml>=6.0",
+  "torch>=2.1",
+  "transformers>=4.40",
+]
+
+[project.scripts]
+guardweave = "guardweave.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["guardweave"]
