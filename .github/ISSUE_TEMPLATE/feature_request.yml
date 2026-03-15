@@ -1,0 +1,41 @@
+name: Feature request
+description: Propose a new GuardWeave capability or integration path.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user or deployment pain point are you hitting?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the API, CLI, or behavior you want.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface area
+      options:
+        - CLI
+        - Python API
+        - Training
+        - Benchmarking
+        - Docs
+        - Integrations
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing workaround or competing tool behavior.
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Benchmarks, screenshots, traces, or links.

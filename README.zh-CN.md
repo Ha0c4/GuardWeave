@@ -1,5 +1,9 @@
 # GuardWeave
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
+[![CI](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml/badge.svg)](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Ha0c4/GuardWeave)](https://github.com/Ha0c4/GuardWeave/releases)
+
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 `GuardWeave` 是一个轻量、风险自适应的防御层，用来拦截提示词注入、秘密外泄和不安全输出回放。🛡️
@@ -12,6 +16,13 @@
 - 本地 Hugging Face 模型
 
 核心库只依赖 Python 标准库。你可以先以纯启发式模式落地，不增加额外运行时依赖；后续再按需要启用 judge 辅助的 regex 生成或输出审查能力。
+
+项目入口：
+
+- [Release 说明](docs/releases/v0.1.0.md)
+- [贡献指南](CONTRIBUTING.md)
+- [安全策略](SECURITY.md)
+- [发布文案草稿](docs/LAUNCH_POSTS.zh-CN.md)
 
 ## 评测亮点 📊
 
@@ -518,4 +529,6 @@ python examples/train_local_judge.py
 - 核心库已经可以通过 `pyproject.toml` 进行打包
 - CLI 安装后命令名是 `guardweave`
 - 仓库中的 benchmark 产物不是库使用所必需的
-- 如果准备公开发布，建议在发布前补上明确的 `LICENSE`
+- 仓库现在已经包含 MIT `LICENSE`
+- 已附带基于 tag 的 GitHub Release workflow
+- 已附带手动触发的 PyPI 发布 workflow，等 PyPI trusted publishing 配好后就能用

@@ -1,0 +1,64 @@
+name: Bug report
+description: Report a reproducible bug in GuardWeave.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please include the smallest reproduction you can.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: What is failing?
+      placeholder: guardweave inspect blocks a benign prompt after enabling a local judge
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment target
+      options:
+        - Hosted API
+        - OpenAI-compatible local server
+        - Local Hugging Face model
+        - Local classifier judge
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Commands, config, and inputs needed to reproduce.
+      placeholder: |
+        1. Install with pip install -e .[train]
+        2. Run guardweave inspect ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, OS, and model/backend versions.
+      placeholder: Python 3.11, macOS 15, Qwen2.5-7B-Instruct, LM Studio 0.3.x
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or traceback
+      render: shell

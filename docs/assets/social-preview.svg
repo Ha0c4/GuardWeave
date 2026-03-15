@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">GuardWeave social preview</title>
+  <desc id="desc">Lightweight prompt-injection defense for hosted APIs and local LLMs.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="50%" stop-color="#10274f"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <circle cx="1080" cy="130" r="170" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="1180" cy="500" r="220" fill="#ffffff" fill-opacity="0.05"/>
+  <rect x="72" y="78" width="180" height="42" rx="21" fill="#0f172a" fill-opacity="0.75" stroke="#38bdf8" stroke-opacity="0.7"/>
+  <text x="101" y="106" fill="#dbeafe" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="700">GuardWeave</text>
+  <text x="72" y="224" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="72" font-weight="800">Prompt-Injection Defense</text>
+  <text x="72" y="300" fill="#cbd5e1" font-family="Helvetica, Arial, sans-serif" font-size="34">Risk-adaptive gating for hosted APIs and local LLMs</text>
+  <text x="72" y="372" fill="#d1fae5" font-family="Helvetica, Arial, sans-serif" font-size="28">3B local judge on 7B base model: 63.96% violation reduction</text>
+  <text x="72" y="422" fill="#d1fae5" font-family="Helvetica, Arial, sans-serif" font-size="28">Gemini 2.5 Flash judge: 92.33% violation reduction</text>
+  <rect x="72" y="488" width="1136" height="4" rx="2" fill="url(#accent)"/>
+  <text x="72" y="548" fill="#e2e8f0" font-family="Helvetica, Arial, sans-serif" font-size="28">Hosted APIs • OpenAI-compatible wrappers • Hugging Face models</text>
+  <text x="72" y="590" fill="#94a3b8" font-family="Helvetica, Arial, sans-serif" font-size="22">github.com/Ha0c4/GuardWeave</text>
+</svg>

@@ -1,5 +1,9 @@
 # GuardWeave
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-10b981.svg)](LICENSE)
+[![CI](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml/badge.svg)](https://github.com/Ha0c4/GuardWeave/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Ha0c4/GuardWeave)](https://github.com/Ha0c4/GuardWeave/releases)
+
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 `GuardWeave` is a lightweight, risk-adaptive defense layer for prompt-injection, secret-exfiltration, and unsafe output replay. 🛡️
@@ -12,6 +16,13 @@ It is designed to sit in front of:
 - local Hugging Face models
 
 The core library is pure Python standard library. You can start in heuristic-only mode with no extra runtime dependency, then enable judge-assisted regex generation or output judging when you want stronger protection.
+
+Project links:
+
+- [Release notes](docs/releases/v0.1.0.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Launch post drafts](docs/LAUNCH_POSTS.md)
 
 ## Benchmark Highlights 📊
 
@@ -518,4 +529,6 @@ python examples/train_local_judge.py
 - The core library is ready to package through `pyproject.toml`
 - The CLI is installed as `guardweave`
 - Benchmark artifacts in this repository are not required for library usage
-- If you plan to publish publicly, choose and add your preferred `LICENSE` file before release
+- The repository now ships with an MIT `LICENSE`
+- A GitHub Actions release workflow is included for tagged builds
+- A manual PyPI publish workflow is included and can be enabled after PyPI trusted publishing is configured

@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "GuardWeave: risk-adaptive prompt injection defense for hosted APIs and local LLMs."
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
 keywords = ["llm", "prompt-injection", "security", "guardrails", "rag"]
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -20,6 +21,13 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Ha0c4/GuardWeave"
+Repository = "https://github.com/Ha0c4/GuardWeave"
+Issues = "https://github.com/Ha0c4/GuardWeave/issues"
+Documentation = "https://github.com/Ha0c4/GuardWeave/tree/master/docs"
+Changelog = "https://github.com/Ha0c4/GuardWeave/releases"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
