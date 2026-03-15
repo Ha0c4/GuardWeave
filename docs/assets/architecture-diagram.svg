@@ -42,10 +42,10 @@
 
   <g transform="translate(60 150)" filter="url(#shadow)">
     <rect x="0" y="0" width="320" height="178" rx="14" class="panelSoft"/>
-    <rect x="18" y="18" width="42" height="42" rx="10" class="header"/>
-    <path d="M28 29H49M28 38H44M28 47H47M28 56H39" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/>
-    <text x="80" y="44" class="section">System Prompt Binder</text>
-    <line x1="80" y1="56" x2="296" y2="56" class="rule"/>
+    <rect x="24" y="18" width="42" height="42" rx="10" class="header"/>
+    <path d="M34 29H55M34 38H50M34 47H53M34 56H45" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/>
+    <text x="186" y="44" text-anchor="middle" class="section">System Prompt Binder</text>
+    <line x1="78" y1="56" x2="294" y2="56" class="rule"/>
     <text x="44" y="96" class="body">• Regex Generation Cache</text>
     <text x="44" y="130" class="body">• Judge-Derived Regex Profile</text>
     <text x="44" y="164" class="body">• Refresh on Prompt Change</text>
@@ -76,11 +76,11 @@
 
     <rect x="18" y="170" width="214" height="42" rx="8" class="chip"/>
     <text x="40" y="197" class="body">Local Judge</text>
-    <text x="163" y="197" class="small">(Optional)</text>
+    <text x="224" y="197" text-anchor="end" class="small"> (Optional)</text>
 
     <rect x="18" y="222" width="214" height="42" rx="8" class="chip"/>
     <text x="40" y="249" class="body">Remote Judge</text>
-    <text x="177" y="249" class="small">(Optional)</text>
+    <text x="224" y="249" text-anchor="end" class="small"> (Optional)</text>
 
     <rect x="18" y="278" width="214" height="36" rx="8" class="chipAccent"/>
     <text x="125" y="301" text-anchor="middle" class="bodyInv" style="font-size: 17px;">Stage: Pre / Post / Both</text>
@@ -100,7 +100,7 @@
       <tspan x="160" dy="16">and tiered instruction</tspan>
     </text>
 
-    <rect x="28" y="96" width="264" height="214" rx="14" class="dark"/>
+    <rect x="28" y="96" width="264" height="230" rx="14" class="dark"/>
 
     <rect x="46" y="116" width="228" height="40" rx="8" class="chipAccent"/>
     <text x="160" y="142" text-anchor="middle" class="bodyInv">Hosted APIs</text>
@@ -133,7 +133,7 @@
     <text x="40" y="197" class="body">Policy Leakage Check</text>
 
     <rect x="18" y="222" width="214" height="42" rx="8" class="chip"/>
-    <text x="40" y="249" class="body">Encoded Leakage Check</text>
+    <text x="36" y="249" class="body" style="font-size: 16px;">Encoded Leakage Check</text>
 
     <rect x="18" y="278" width="214" height="36" rx="8" class="chipAccent"/>
     <text x="125" y="301" text-anchor="middle" class="bodyInv" style="font-size: 17px;">Block / Allow / Refuse</text>
