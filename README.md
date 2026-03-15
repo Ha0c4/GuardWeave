@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-`GuardWeave` is a lightweight, risk-adaptive defense layer for prompt-injection, secret-exfiltration, and unsafe output replay.
+`GuardWeave` is a lightweight, risk-adaptive defense layer for prompt-injection, secret-exfiltration, and unsafe output replay. 🛡️
 
 It is designed to sit in front of:
 
@@ -13,7 +13,7 @@ It is designed to sit in front of:
 
 The core library is pure Python standard library. You can start in heuristic-only mode with no extra runtime dependency, then enable judge-assisted regex generation or output judging when you want stronger protection.
 
-## Benchmark Highlights
+## Benchmark Highlights 📊
 
 On the same `Qwen/Qwen2.5-7B-Instruct` base model, across two 10-run suites with `200` candidate attacks per run and `90-93` effective attacks per run:
 
@@ -22,13 +22,13 @@ On the same `Qwen/Qwen2.5-7B-Instruct` base model, across two 10-run suites with
 | Local judge: `Qwen/Qwen2.5-3B` | `36.04%` | `63.96%` | `11.60%` |
 | Remote judge: `gemini-2.5-flash` | `7.67%` | `92.33%` | `9.00%` |
 
-Why this is lightweight:
+Why this is lightweight ⚙️:
 
 - The heuristic-only path uses the Python standard library only.
 - The local judge path uses a `3B` judge to protect a `7B` base model. That is about `42.9%` of the base-model size by parameter count, while still cutting malicious violations by `63.96%`.
 - If you want stronger blocking and can afford a remote API judge, `gemini-2.5-flash` pushes the malicious defended violation rate down to `7.67%`.
 
-## What It Does
+## What It Does 🔒
 
 - Scores user input risk before generation
 - Escalates across multi-turn probing and chunked extraction attempts
@@ -41,7 +41,7 @@ Why this is lightweight:
 - Supports a separate local or remote judge model for risk scoring, output verification, and regex generation
 - Works with hosted APIs and local models through one reusable pipeline
 
-## Quick Start
+## Quick Start 🚀
 
 Install locally:
 
