@@ -1929,6 +1929,26 @@ class PolicyRiskDefender:
         )
         return system_injection, user_text_aug, controls
 
+    def inspect_input(self, user_text: str) -> Dict[str, Any]:
+        """Beginner-friendly wrapper around ``before_generate``.
+
+        Returns a single dictionary that contains the prompt injection, wrapped
+        user text, and ``Controls`` object so first-time integrators do not
+        need to unpack the low-level tuple manually.
+        """
+        system_injection, wrapped_user_text, controls = self.before_generate(user_text)
+        return {
+            "system_injection": system_injection,
+            "wrapped_user_text": wrapped_user_text,
+            "controls": controls,
+            "runtime_profile": {
+                "source": self._active_runtime_profile.source,
+                "system_prompt_hash": self._active_runtime_profile.system_prompt_hash,
+                "dynamic_deny_patterns": len(self._active_runtime_profile.deny_patterns),
+                "dynamic_input_probe_patterns": len(self._active_runtime_profile.input_probe_patterns),
+            },
+        }
+
     def after_generate(self, user_text: str, model_output: str, controls: Controls) -> Dict[str, Any]:
         """Verify a model output against the policy and decide accept/refuse/repair.
 
