@@ -372,7 +372,8 @@ guardweave eval-judge \
 Python API:
 
 ```python
-from guardweave import LocalSequenceOutputJudge, LocalSequenceRiskJudge, PolicyRiskDefender
+from guardweave import PolicyRiskDefender
+from guardweave.local_judges import LocalSequenceOutputJudge, LocalSequenceRiskJudge
 
 defender = PolicyRiskDefender(
     policy=policy,
@@ -497,3 +498,9 @@ guardweave chat \
   --judge-model judge-model \
   --judge-api-base http://127.0.0.1:1234/v1
 ```
+
+## Real Integration Examples
+
+- API boundary / request middleware example: `examples/fastapi_middleware.py`
+- Retrieved-context wrapper example: `examples/rag_wrapper.py`
+- Tiny checked-in benchmark smoke pack: `docs/BENCHMARK_REPRO.md`

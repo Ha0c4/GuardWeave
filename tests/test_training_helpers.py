@@ -1,4 +1,5 @@
-from guardweave import JudgeArtifactConfig, TrainJudgeConfig, render_judge_text
+from guardweave.local_judges import JudgeArtifactConfig, render_judge_text
+from guardweave.training import TrainJudgeConfig
 
 
 def test_train_config_from_dict_normalizes_values() -> None:

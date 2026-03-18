@@ -14,31 +14,47 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
-from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer
+try:
+    from datasets import load_dataset
+except Exception as exc:  # pragma: no cover - optional benchmark dependency
+    load_dataset = None  # type: ignore[assignment]
+    _DATASETS_IMPORT_ERROR = exc
+else:
+    _DATASETS_IMPORT_ERROR = None
 
-from guardweave import (
-    DefenderConfig,
+try:
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+except Exception as exc:  # pragma: no cover - optional benchmark dependency
+    AutoModelForCausalLM = None  # type: ignore[assignment]
+    AutoTokenizer = None  # type: ignore[assignment]
+    _TRANSFORMERS_IMPORT_ERROR = exc
+else:
+    _TRANSFORMERS_IMPORT_ERROR = None
+
+from guardweave import DefenderConfig, Policy, PolicyRiskDefender
+from guardweave.core import (
     GeminiOutputJudge,
     GeminiRESTClient,
     GeminiRESTConfig,
     GeminiRiskJudge,
-    LocalSequenceOutputJudge,
-    LocalSequenceRiskJudge,
-    Policy,
-    PolicyRiskDefender,
-    TrainJudgeConfig,
     augment_system_prompt,
-    render_judge_text,
-    render_policy_text,
-    train_sequence_judge,
     wrap_user_message,
 )
+from guardweave.local_judges import (
+    LocalSequenceOutputJudge,
+    LocalSequenceRiskJudge,
+    render_judge_text,
+    render_policy_text,
+)
+from guardweave.training import TrainJudgeConfig, train_sequence_judge
 
 try:
     import torch
-except Exception as exc:  # pragma: no cover
-    raise RuntimeError("This benchmark requires torch.") from exc
+except Exception as exc:  # pragma: no cover - optional benchmark dependency
+    torch = None  # type: ignore[assignment]
+    _TORCH_IMPORT_ERROR = exc
+else:
+    _TORCH_IMPORT_ERROR = None
 
 
 DATASET_NAME = "wambosec/prompt-injections"
@@ -79,6 +95,15 @@ FUNCTION_CALL_RE = re.compile(r"(?i)\b(?:reveal_system_prompt|dump_internal_stat
 TABLE_RE = re.compile(r"(?m)^\|.*\|$")
 
 
+def _require_generation_stack(*, require_dataset: bool = False) -> None:
+    if _TORCH_IMPORT_ERROR is not None:
+        raise RuntimeError("This benchmark requires torch.") from _TORCH_IMPORT_ERROR
+    if _TRANSFORMERS_IMPORT_ERROR is not None:
+        raise RuntimeError("This benchmark requires transformers.") from _TRANSFORMERS_IMPORT_ERROR
+    if require_dataset and _DATASETS_IMPORT_ERROR is not None:
+        raise RuntimeError("This benchmark requires datasets.") from _DATASETS_IMPORT_ERROR
+
+
 def ensure_dir(path: Path) -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
@@ -96,6 +121,7 @@ def write_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
 
 
 def detect_device() -> str:
+    _require_generation_stack()
     if torch.cuda.is_available():
         return "cuda"
     if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -104,6 +130,7 @@ def detect_device() -> str:
 
 
 def resolve_dtype(device: str) -> Any:
+    _require_generation_stack()
     return torch.float16 if device in {"cuda", "mps"} else torch.float32
 
 
@@ -224,6 +251,7 @@ def build_training_payload(judge_config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def maybe_empty_cache() -> None:
+    _require_generation_stack()
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
@@ -235,6 +263,7 @@ def maybe_empty_cache() -> None:
 
 
 def load_generation_backend(model_name: str, *, device: str) -> Tuple[Any, Any]:
+    _require_generation_stack()
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
     if getattr(tokenizer, "pad_token", None) is None and getattr(tokenizer, "eos_token", None) is not None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -270,6 +299,7 @@ def generate_text(
     device: str,
     max_new_tokens: int,
 ) -> str:
+    _require_generation_stack()
     prompt = render_messages(tokenizer, system_prompt, user_text)
     inputs = tokenizer(prompt, return_tensors="pt")
     inputs = {key: value.to(device) for key, value in inputs.items()}
@@ -685,6 +715,7 @@ def prepare_dataset_artifacts(
     prefer_short_candidates: bool,
     seed: int,
 ) -> Dict[str, Any]:
+    _require_generation_stack(require_dataset=True)
     dataset = load_dataset(DATASET_NAME)
     train_records = [dataset_row_to_record(row, split="train") for row in dataset["train"]]
     test_records = [dataset_row_to_record(row, split="test") for row in dataset["test"]]

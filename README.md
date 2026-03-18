@@ -24,6 +24,7 @@ Project links:
 - [Performance profile](docs/PERFORMANCE.md)
 - [Threat model](docs/THREAT_MODEL.md)
 - [Judge comparison report](docs/JUDGE_BENCHMARK_COMPARISON.md)
+- [Benchmark reproduction pack](docs/BENCHMARK_REPRO.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Launch post drafts](docs/LAUNCH_POSTS.md)
@@ -558,7 +559,8 @@ See `examples/local_judge_setup.py` for both variants.
 For trained local classifier judges:
 
 ```python
-from guardweave import LocalSequenceOutputJudge, LocalSequenceRiskJudge, PolicyRiskDefender
+from guardweave import PolicyRiskDefender
+from guardweave.local_judges import LocalSequenceOutputJudge, LocalSequenceRiskJudge
 
 defender = PolicyRiskDefender(
     policy=policy,
@@ -600,6 +602,28 @@ Run the Python training example:
 ```bash
 python examples/train_local_judge.py
 ```
+
+Run the FastAPI integration example:
+
+```bash
+uvicorn examples.fastapi_middleware:app --reload
+```
+
+Run the RAG wrapper example:
+
+```bash
+python examples/rag_wrapper.py
+```
+
+See the tiny checked-in benchmark smoke pack:
+
+```bash
+python benchmarks/run_sample_benchmark.py \
+  --dataset benchmarks/data/sample_prompt_benchmark.jsonl \
+  --output-dir benchmarks/results/sample_prompt_benchmark
+```
+
+More detail is in [docs/BENCHMARK_REPRO.md](docs/BENCHMARK_REPRO.md).
 
 ## Notes for GitHub Release
 

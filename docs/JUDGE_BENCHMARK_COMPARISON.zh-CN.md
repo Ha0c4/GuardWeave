@@ -52,6 +52,7 @@
 ## 公开仓库策略
 
 - 公开仓库保留 benchmark 脚本和这份高层总结。
+- 另外提供了一份仓库内最小 smoke pack，见 [`docs/BENCHMARK_REPRO.md`](BENCHMARK_REPRO.md)。
 - `benchmarks/results/` 下的生成结果不会上传到 GitHub。
 - `benchmarks/data/qwen_attack_guardweave/` 和 `benchmarks/data/strategy_guardweave*/` 这类生成出来的 benchmark 数据也不会上传。
 

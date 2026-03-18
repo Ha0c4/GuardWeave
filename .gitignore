@@ -17,6 +17,10 @@ build/
 .tmp/
 artifacts/
 .vscode/
-benchmarks/results/
+benchmarks/results/*
+!benchmarks/results/sample_prompt_benchmark/
+!benchmarks/results/sample_prompt_benchmark/sample_records.jsonl
+!benchmarks/results/sample_prompt_benchmark/sample_summary.json
+!benchmarks/results/sample_prompt_benchmark/sample_summary.csv
 benchmarks/data/qwen_attack_guardweave/
 benchmarks/data/strategy_guardweave*/

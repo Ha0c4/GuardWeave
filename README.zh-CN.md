@@ -24,6 +24,7 @@
 - [性能与轻量化说明](docs/PERFORMANCE.zh-CN.md)
 - [Threat Model / 边界说明](docs/THREAT_MODEL.zh-CN.md)
 - [Judge 对比评测](docs/JUDGE_BENCHMARK_COMPARISON.zh-CN.md)
+- [最小 Benchmark 复现包](docs/BENCHMARK_REPRO.md)
 - [贡献指南](CONTRIBUTING.md)
 - [安全策略](SECURITY.md)
 - [发布文案草稿](docs/LAUNCH_POSTS.zh-CN.md)
@@ -558,7 +559,8 @@ defender = PolicyRiskDefender(
 如果你要接训练好的本地分类 judge：
 
 ```python
-from guardweave import LocalSequenceOutputJudge, LocalSequenceRiskJudge, PolicyRiskDefender
+from guardweave import PolicyRiskDefender
+from guardweave.local_judges import LocalSequenceOutputJudge, LocalSequenceRiskJudge
 
 defender = PolicyRiskDefender(
     policy=policy,
@@ -600,6 +602,28 @@ python examples/openai_compatible_chat.py
 ```bash
 python examples/train_local_judge.py
 ```
+
+运行 FastAPI 集成示例：
+
+```bash
+uvicorn examples.fastapi_middleware:app --reload
+```
+
+运行 RAG wrapper 示例：
+
+```bash
+python examples/rag_wrapper.py
+```
+
+查看仓库内最小 benchmark smoke pack：
+
+```bash
+python benchmarks/run_sample_benchmark.py \
+  --dataset benchmarks/data/sample_prompt_benchmark.jsonl \
+  --output-dir benchmarks/results/sample_prompt_benchmark
+```
+
+详细说明见 [docs/BENCHMARK_REPRO.md](docs/BENCHMARK_REPRO.md)。
 
 ## 面向 GitHub 发布的说明
 

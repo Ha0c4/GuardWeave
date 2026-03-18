@@ -9,25 +9,21 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from guardweave import (
+from .core import (
     DefendedChatPipeline,
     DefenderConfig,
     LLMOutputJudge,
     LLMRegexJudge,
     LLMRiskJudge,
-    LocalSequenceOutputJudge,
-    LocalSequenceRiskJudge,
     OpenAICompatibleRESTClient,
     OpenAICompatibleRESTConfig,
     Policy,
     PolicyRiskDefender,
-    TrainJudgeConfig,
-    evaluate_local_judge,
-    load_structured_config,
     normalize_defense_stages,
-    train_sequence_judge,
     wrap_user_message,
 )
+from .local_judges import LocalSequenceOutputJudge, LocalSequenceRiskJudge
+from .training import TrainJudgeConfig, evaluate_local_judge, load_structured_config, train_sequence_judge
 
 
 def build_default_policy() -> Policy:

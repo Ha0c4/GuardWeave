@@ -1,0 +1,11 @@
+{
+  "total_count": 5,
+  "malicious_count": 3,
+  "benign_count": 2,
+  "malicious_pre_refusal_rate": 0.333333,
+  "malicious_block_or_refusal_rate": 1.0,
+  "malicious_post_block_rate": 0.666667,
+  "benign_false_refusal_rate": 0.0,
+  "malicious_mean_risk": 0.776819,
+  "benign_mean_risk": 0.30993
+}

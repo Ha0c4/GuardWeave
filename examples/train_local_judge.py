@@ -5,12 +5,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from guardweave import (
-    LocalSequenceRiskJudge,
-    Policy,
-    TrainJudgeConfig,
-    train_sequence_judge,
-)
+from guardweave import Policy
+from guardweave.local_judges import LocalSequenceRiskJudge
+from guardweave.training import TrainJudgeConfig, train_sequence_judge
 
 
 ROOT = Path(__file__).resolve().parents[1]

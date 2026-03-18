@@ -49,3 +49,6 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["guardweave"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

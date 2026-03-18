@@ -52,6 +52,7 @@ The goal is to show how the judge choice changes GuardWeave's prompt-injection d
 ## Public Repo Policy
 
 - The public repo keeps the benchmark scripts and this high-level summary.
+- A tiny checked-in smoke pack is available in [`docs/BENCHMARK_REPRO.md`](BENCHMARK_REPRO.md).
 - Generated artifacts under `benchmarks/results/` are intentionally excluded from GitHub.
 - Generated benchmark datasets under `benchmarks/data/qwen_attack_guardweave/` and `benchmarks/data/strategy_guardweave*/` are also excluded.
 

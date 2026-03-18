@@ -1,5 +1,46 @@
-"""GuardWeave public import surface."""
+"""GuardWeave stable public runtime API.
 
-from .core import *  # noqa: F401,F403
-from .local_judges import *  # noqa: F401,F403
-from .training import *  # noqa: F401,F403
+Training helpers and local classifier judges are intentionally exposed through
+their explicit submodules:
+
+- ``guardweave.training``
+- ``guardweave.local_judges``
+"""
+
+from .core import (
+    ChatBackendJSONAdapter,
+    CallableChatBackend,
+    Controls,
+    DefenderConfig,
+    DefendedChatPipeline,
+    DefendedGenerationResult,
+    LLMJudgePrompts,
+    LLMOutputJudge,
+    LLMRegexJudge,
+    LLMRiskJudge,
+    OpenAICompatibleRESTClient,
+    OpenAICompatibleRESTConfig,
+    Policy,
+    PolicyRiskDefender,
+    RegexJudgePrompts,
+    TransformersChatBackend,
+)
+
+__all__ = [
+    "ChatBackendJSONAdapter",
+    "CallableChatBackend",
+    "Controls",
+    "DefenderConfig",
+    "DefendedChatPipeline",
+    "DefendedGenerationResult",
+    "LLMJudgePrompts",
+    "LLMOutputJudge",
+    "LLMRegexJudge",
+    "LLMRiskJudge",
+    "OpenAICompatibleRESTClient",
+    "OpenAICompatibleRESTConfig",
+    "Policy",
+    "PolicyRiskDefender",
+    "RegexJudgePrompts",
+    "TransformersChatBackend",
+]

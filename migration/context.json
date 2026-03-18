@@ -1,0 +1,57 @@
+{
+  "project_name": "GuardWeave",
+  "package_name": "guardweave",
+  "public_repo": "https://github.com/Ha0c4/GuardWeave",
+  "pypi": "https://pypi.org/project/guardweave/",
+  "status": {
+    "p0_review_items": "done",
+    "p1_review_items": "done",
+    "p2_review_items": "done"
+  },
+  "current_focus": [
+    "improve benchmark instrumentation depth",
+    "harden real integration examples for concrete deployments",
+    "keep runtime API and docs aligned"
+  ],
+  "key_docs": [
+    "README.md",
+    "README.zh-CN.md",
+    "docs/BENCHMARK_REPRO.md",
+    "docs/PERFORMANCE.md",
+    "docs/THREAT_MODEL.md",
+    "docs/JUDGE_BENCHMARK_COMPARISON.md"
+  ],
+  "key_modules": [
+    "guardweave/core.py",
+    "guardweave/cli.py",
+    "guardweave/local_judges.py",
+    "guardweave/training.py"
+  ],
+  "key_recent_changes": [
+    "project renamed and packaged as GuardWeave",
+    "PyPI publishing enabled",
+    "README reorganized around deployment evidence",
+    "performance and threat-model docs added",
+    "architecture SVG added to README",
+    "beginner onboarding improved with guardweave init and inspect_input()",
+    "top-level runtime API narrowed and import examples updated",
+    "core decision tests and CLI JSON contract tests added",
+    "tiny public benchmark reproduction pack added",
+    "FastAPI middleware and RAG wrapper examples added"
+  ],
+  "benchmark_headline": {
+    "base_model": "Qwen/Qwen2.5-7B-Instruct",
+    "heuristic_only_malicious_violation_rate": "54.44%",
+    "local_judge_model": "Qwen/Qwen2.5-3B",
+    "local_judge_malicious_violation_rate": "37.78%",
+    "remote_judge_model": "gemini-2.5-flash",
+    "remote_judge_malicious_violation_rate": "7.67%"
+  },
+  "do_not_assume": [
+    "same runtime environment",
+    "local credentials or API keys",
+    "checked-in benchmark result artifacts",
+    "machine-specific absolute paths",
+    "full benchmark datasets in the public repo"
+  ]
+}
